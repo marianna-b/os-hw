@@ -14,19 +14,17 @@ ssize_t write_(int fd, const void* buf, size_t count) {
 	return res;
 }
 
-ssize_t read_(int fd, const void* buf) {
+ssize_t read_(int fd, const void* buf, size_t count) {
 	size_t idx = 0;
-	ssize_t count = 0;
-	char curr_buf[128];
+	ssize_t res = 0;
 	
-	while ((count = read(fd, curr_buf, 128)) > 0) {
-		memcpy((char *) buf + idx, curr_buf, count);
-		idx += count;
+	while (idx < count && (res = read(fd, (char*)buf + idx, count - idx)) > 0) {
+		idx += res;
 	}
 	
-	if (count == 0) {
+	if (res == 0) {
 		return idx;
 	} else {
-		return count;
+		return res;
 	}
 }
