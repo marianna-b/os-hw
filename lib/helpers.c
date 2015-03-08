@@ -22,9 +22,9 @@ ssize_t read_(int fd, const void* buf, size_t count) {
 		idx += res;
 	}
 	
-	if (res == 0) {
-		return idx;
-	} else {
+	if (res < 0) {
 		return res;
+	} else {
+		return idx;
 	}
 }
