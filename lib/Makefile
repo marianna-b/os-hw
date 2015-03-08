@@ -1,7 +1,7 @@
 CC = gcc
 
 CFLAGS = -c -Wall
-LDFLAGS = -shared -o
+LDFLAGS = -shared 
 
 RM = rm -f
 TARGET_LIB = libhelpers.so
@@ -9,13 +9,10 @@ TARGET_LIB = libhelpers.so
 SRCS = helpers.c 
 OBJS = $(SRCS:.c=.o) 
 
-all: ${TARGET_LIB}
+all: $(TARGET_LIB)
  
 $(TARGET_LIB): $(OBJS)
-	$(CC) ${LDFLAGS} $(TARGET_LIB) $(OBJS)
- 
-$(SRCS:.c=.o): $(SRCS)
-	$(CC) $(CFLAGS) $(SRCS)
+	$(CC) $(LDFLAGS) -o $@ $^
  
 clean:
-	-${RM} ${TARGET_LIB} ${OBJS}
+	-$(RM) $(TARGET_LIB) $(OBJS)
