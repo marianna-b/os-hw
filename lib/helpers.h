@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-static ssize_t write_(int, const void*, size_t);
-static ssize_t read_(int, const void*, size_t);
+ssize_t write_(int, const void*);
+ssize_t read_(int, const void*);
 
 #endif
