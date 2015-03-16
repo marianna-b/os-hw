@@ -28,3 +28,7 @@ ssize_t read_(int fd, const void* buf, size_t count) {
 		return idx;
 	}
 }
+
+ssize_t read_until(int fd, void * buf, size_t count, char delimiter) {
+	return -1;
+}
