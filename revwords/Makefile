@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -L../lib -Wall -Wl,-rpath=../lib
+CFLAGS = -L../lib -Wall -Wl,-rpath=../lib -g
 
 RM = rm -f
 TARGET = revwords
