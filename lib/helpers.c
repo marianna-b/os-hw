@@ -30,5 +30,23 @@ ssize_t read_(int fd, const void* buf, size_t count) {
 }
 
 ssize_t read_until(int fd, void * buf, size_t count, char delimiter) {
-	return -1;
+	size_t idx = 0;
+	ssize_t res = 0;
+	
+	while (idx < count && (res = read(fd, (char*)buf + idx, count - idx)) > 0) {
+		int i;
+		for (i = 0; i < res; i++) {
+			if (((char*)buf)[idx + i] == delimiter) {
+				return idx + res;
+			}
+			
+		}
+		idx += res;
+	}
+	
+	if (res < 0) {
+		return res;
+	} else {
+		return idx;
+	}
 }
