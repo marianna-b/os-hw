@@ -33,10 +33,8 @@ int main() {
         
         while ((read_res = read_until(STDIN_FILENO, buf + idx, BUF_SIZE - idx, ' ')) >= 0) {
 	        if (read_res == 0) {
-		        if (idx == 0) break;
-		        
-				reverse(buf, 0, idx - 1);
-				if (write_stdout(buf, idx - 1) < 0) goto ERROR;
+				reverse(buf, 0, idx);
+				if (write_stdout(buf, idx) < 0) goto ERROR;
 		        break;
 	        } else {
 		        size_t i, l = 0, n = read_res + idx;
