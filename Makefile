@@ -1,4 +1,4 @@
-SUBMODULES = lib cat
+SUBMODULES = lib cat revwords
 
 all:
 	@for dir in $(SUBMODULES) ; do \
