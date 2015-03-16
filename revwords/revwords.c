@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const size_t BUF_SIZE = 4096;
+const size_t BUF_SIZE = 4;
 
 ssize_t write_stdout(void* buf, size_t l) {
 	if (write_(STDOUT_FILENO, buf, l) < 0) {
@@ -34,23 +34,25 @@ int main() {
         while ((read_res = read_until(STDIN_FILENO, buf + idx, BUF_SIZE - idx, ' ')) >= 0) {
 	        if (read_res == 0) {
 				reverse(buf, 0, idx - 1);
-		        if (write_stdout(buf, idx) < 0) goto ERROR;
+				if (write_stdout(buf, idx) < 0) goto ERROR;
 		        break;
 	        } else {
 		        if (read_res + idx == BUF_SIZE) {
 				    reverse(buf, 0, BUF_SIZE);
 			        if (write_stdout(buf, BUF_SIZE) < 0) goto ERROR;
-		        }
-		        size_t i, l = 0, n = read_res + idx;
-		        for (i = 0; i < n; i++) {
-			        if (buf[i] == ' ') {
-				        reverse(buf, l, i);
-				        if (write_stdout(buf + l, i - l + 1) < 0) goto ERROR;
-				        l = i + 1;
+			        idx = 0;
+		        } else {
+			        size_t i, l = 0, n = read_res + idx;
+			        for (i = 0; i < n; i++) {
+				        if (buf[i] == ' ') {
+					        reverse(buf, l, i);
+					        if (write_stdout(buf + l, i - l + 1) < 0) goto ERROR;
+					        l = i + 1;
+				        }
 			        }
+			        idx = n - l;
+			        memmove(buf, buf + l, idx);
 		        }
-		        idx = n - l;
-		        memmove(buf, buf + l, idx);
 	        }
         }
 
