@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -55,13 +56,15 @@ ssize_t read_until(int fd, void * buf, size_t count, char delimiter) {
 
 int spawn(const char* file, char* const argv[]) {
 	pid_t child;
+	
 	if ((child = fork()) == 0) {
 		return execvp(file, argv);
 	} else {
-		int status;
-		if (waitpid(child, &status, 0) < 0)
-			return -1;
-		else
+		int status = 1;
+		int ret = waitpid(child, &status, 0);
+		if (ret < 0 || WIFEXITED(status))
 			return 0;
+		else
+			return -1;
 	}
 }
