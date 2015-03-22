@@ -36,8 +36,8 @@ int main(int arg_count, char* argv[]) {
 
 				    args[arg_count - 1] = tmp_buf;
 
-				    tmp_buf[i - bound] = delimiter;
 				    if (spawn(argv[1], args) == 0)
+					    tmp_buf[i - bound] = delimiter;
 					    if (write_(STDOUT_FILENO, tmp_buf, i - bound + 1) < 0) goto ERROR;
 				    l = i;
 		        }
