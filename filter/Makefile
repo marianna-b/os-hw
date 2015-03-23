@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -L../lib -Wall -Wl,-rpath=../lib -g
+CFLAGS = -L../lib -Wall -Wl,-rpath=../lib -I../lib
 
 RM = rm -f
 TARGET = filter
