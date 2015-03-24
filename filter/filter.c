@@ -14,7 +14,7 @@ int main(int arg_count, char* argv[]) {
         
         ssize_t read_res;
         size_t idx = 0;
-        char* args[arg_count];
+        char* args[arg_count + 1];
         
         int i;
         if (arg_count < 2) goto ERROR;
@@ -22,6 +22,8 @@ int main(int arg_count, char* argv[]) {
         for (i = 0; i < arg_count - 1; i ++) {
 	        args[i] = argv[i + 1];
         }
+
+        args[arg_count] = NULL;
         
         while ((read_res = read_until(STDIN_FILENO, buf + idx, BUF_SIZE - idx, delimiter)) >= 0) {
 	        if (read_res == 0) {
