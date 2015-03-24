@@ -60,10 +60,13 @@ int spawn(const char* file, char* const argv[]) {
 	
 	if ((child = fork()) == 0) {
 		execvp(file, argv);
-		_exit(0);
+		_exit(EXIT_FAILURE);
 	} else {
 		int status;
 		waitpid(child, &status, 0);
-		return status;
+		if (WEXITSTATUS(status) != 0)
+			return -1;
+		else
+			return 0;
 	}
 }
