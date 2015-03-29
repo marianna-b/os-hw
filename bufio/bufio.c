@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/types.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 
@@ -29,7 +29,7 @@ buf_t *buf_new(size_t capacity) {
 
 void buf_free(buf_t * buf) {
 #ifdef DEBUG
-	if (buf == null) {
+	if (buf == NULL) {
 		abort();
 	}
 #endif
@@ -39,7 +39,7 @@ void buf_free(buf_t * buf) {
 
 size_t buf_capacity(buf_t *buf ) {
 #ifdef DEBUG
-	if (buf == null) {
+	if (buf == NULL) {
 		abort();
 	}
 #endif
@@ -48,7 +48,7 @@ size_t buf_capacity(buf_t *buf ) {
 
 size_t buf_size(buf_t * buf) {
 #ifdef DEBUG
-	if (buf == null) {
+	if (buf == NULL) {
 		abort();
 	}
 #endif
@@ -57,18 +57,48 @@ size_t buf_size(buf_t * buf) {
 
 ssize_t buf_fill(int fd, buf_t *buf, size_t required) {
 #ifdef DEBUG
-	if (buf == null) {
+	if (buf == NULL) {
 		abort();
 	}
 #endif
-	return -1;
+	size_t curr_size = 0;
+	ssize_t read_res;
+	size_t cap = buf->capacity;
+	char* curr_buf = buf->buf;
+	while (cap != curr_size && (read_res = read(fd, curr_buf + curr_size, cap - curr_size)) > 0) {
+		curr_size += read_res;
+	}
+
+#ifdef DEBUG
+	if (read_res > 0 && required > cap) {
+		if (buf == NULL) {
+			abort();
+		}
+	}
+#endif
+	buf->size = curr_size;
+	return curr_size;
 }
 
 ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
 #ifdef DEBUG
-	if (buf == null) {
+	if (buf == NULL) {
 		abort();
 	}
 #endif
+
+	size_t curr_size = 0;
+	ssize_t write_res;
+	size_t cap = buf->capacity;
+	char* curr_buf = buf->buf;
+	
+	while (cap != curr_size && (write_res = write(fd, curr_buf + curr_size, cap - curr_size)) > 0) {
+		curr_size += write_res;
+	}
+
+	memmove(curr_buf, curr_buf + curr_size, cap - curr_size);
+	
+	buf->size = curr_size;
+	return curr_size;
 	return -1;
 }
