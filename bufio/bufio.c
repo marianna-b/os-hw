@@ -98,7 +98,6 @@ ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
 
 	memmove(curr_buf, curr_buf + curr_size, cap - curr_size);
 	
-	buf->size = curr_size;
+	buf->size -= curr_size;
 	return curr_size;
-	return -1;
 }
