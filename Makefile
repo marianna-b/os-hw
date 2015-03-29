@@ -1,4 +1,4 @@
-SUBMODULES = lib cat revwords filter
+SUBMODULES = lib cat revwords filter bufio
 
 all:
 	@for dir in $(SUBMODULES) ; do \
