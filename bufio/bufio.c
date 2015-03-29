@@ -89,7 +89,7 @@ ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
 
 	size_t curr_size = 0;
 	ssize_t write_res;
-	size_t cap = buf->capacity;
+	size_t cap = buf->size;
 	char* curr_buf = buf->buf;
 	
 	while (cap != curr_size && (write_res = write(fd, curr_buf + curr_size, cap - curr_size)) > 0) {
