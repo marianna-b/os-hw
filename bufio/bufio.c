@@ -17,7 +17,14 @@ struct buf_t {
 typedef struct buf_t buf_t;
 
 buf_t *buf_new(size_t capacity) {
-	return NULL;
+	buf_t* p = malloc(sizeof(buf_t));
+	if (p == NULL) {
+		return p;
+	}
+	p->size = 0;
+	p->capacity = capacity;
+	p->buf = (char*) malloc(capacity);
+	return p;
 }
 
 void buf_free(buf_t * buf) {
