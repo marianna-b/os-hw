@@ -28,21 +28,47 @@ buf_t *buf_new(size_t capacity) {
 }
 
 void buf_free(buf_t * buf) {
-	
+#ifdef DEBUG
+	if (buf == null) {
+		abort();
+	}
+#endif
+	free(buf->buf);
+	free(buf);
 }
 
 size_t buf_capacity(buf_t *buf ) {
-	return 0;
+#ifdef DEBUG
+	if (buf == null) {
+		abort();
+	}
+#endif
+	return buf->capacity;
 }
 
 size_t buf_size(buf_t * buf) {
-	return 0;
+#ifdef DEBUG
+	if (buf == null) {
+		abort();
+	}
+#endif
+	return buf->size;
 }
 
 ssize_t buf_fill(int fd, buf_t *buf, size_t required) {
+#ifdef DEBUG
+	if (buf == null) {
+		abort();
+	}
+#endif
 	return -1;
 }
 
 ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
+#ifdef DEBUG
+	if (buf == null) {
+		abort();
+	}
+#endif
 	return -1;
 }
