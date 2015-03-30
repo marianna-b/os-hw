@@ -63,17 +63,16 @@ ssize_t buf_fill(int fd, buf_t *buf, size_t required) {
 #endif
 	size_t curr_size = 0;
 	ssize_t read_res;
+
 	size_t cap = buf->capacity;
-	char* curr_buf = buf->buf;
-	while (cap != curr_size && (read_res = read(fd, curr_buf + curr_size, cap - curr_size)) > 0) {
+	char* curr = buf->buf;
+	while (curr_size < required && curr_size < cap && (read_res = read(fd, curr + curr_size, cap - curr_size)) > 0) {
 		curr_size += read_res;
 	}
 
 #ifdef DEBUG
 	if (read_res > 0 && required > cap) {
-		if (buf == NULL) {
-			abort();
-		}
+		abort();
 	}
 #endif
 	buf->size = curr_size;
@@ -90,13 +89,13 @@ ssize_t buf_flush(int fd, buf_t *buf, size_t required) {
 	size_t curr_size = 0;
 	ssize_t write_res;
 	size_t cap = buf->size;
-	char* curr_buf = buf->buf;
+	char* curr= buf->buf;
 	
-	while (cap != curr_size && (write_res = write(fd, curr_buf + curr_size, cap - curr_size)) > 0) {
+	while (curr_size < required && curr_size < cap && (write_res = write(fd, curr + curr_size, cap - curr_size)) > 0) {
 		curr_size += write_res;
 	}
 
-	memmove(curr_buf, curr_buf + curr_size, cap - curr_size);
+	memmove(curr, curr + curr_size, cap - curr_size);
 	
 	buf->size -= curr_size;
 	return curr_size;
