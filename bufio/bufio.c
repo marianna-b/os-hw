@@ -24,6 +24,10 @@ buf_t *buf_new(size_t capacity) {
 	p->size = 0;
 	p->capacity = capacity;
 	p->buf = (char*) malloc(capacity);
+	if (p->buf == NULL) {
+		free(p);
+		return NULL;
+	}
 	return p;
 }
 
