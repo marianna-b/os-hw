@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -L../bufio -Wall -Wl,-rpath=../bufio  -I../bufio
+CFLAGS = -L../lib -Wall -Wl,-rpath=../lib  -I../lib
 
 RM = rm -f
 TARGET = bufcat

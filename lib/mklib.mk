@@ -4,9 +4,8 @@ CFLAGS = -c -Wall -fpic
 LDFLAGS = -shared 
 
 RM = rm -f
-TARGET_LIB = libbufio.so
+TARGET_LIB = lib$(NAME).so
 
-SRCS = bufio.c 
 OBJS = $(SRCS:.c=.o) 
 
 all: $(TARGET_LIB)

@@ -1,18 +1,20 @@
-CC = gcc
+all: libbufio.so libhelpers.so
 
-CFLAGS = -c -Wall -fpic
-LDFLAGS = -shared 
+MAKE = @make --no-print-directory
 
-RM = rm -f
-TARGET_LIB = libhelpers.so
+BUFIO_SRC = bufio.c
+MAKE_BUFIO = $(MAKE) SRCS=$(BUFIO_SRC) NAME=bufio -f mklib.mk
 
-SRCS = helpers.c 
-OBJS = $(SRCS:.c=.o) 
+HELPERS_SRC = helpers.c
+MAKE_HELPERS = $(MAKE) SRCS=$(HELPERS_SRC) NAME=helpers -f mklib.mk
 
-all: $(TARGET_LIB)
- 
-$(TARGET_LIB): $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
- 
+libbufio.so:
+	$(MAKE_BUFIO)
+
+libhelpers.so:
+	$(MAKE_HELPERS)
+
 clean:
-	-$(RM) $(TARGET_LIB) $(OBJS)
+	$(MAKE_BUFIO) clean
+	$(MAKE_HELPERS) clean
+
