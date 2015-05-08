@@ -20,4 +20,8 @@ ssize_t buf_fill(fd_t, struct buf_t *, size_t);
 
 ssize_t buf_flush(fd_t, struct buf_t *, size_t);
 
+ssize_t get_line(fd_t, struct buf_t *, char*);
+
+ssize_t buf_write(fd_t, struct buf_t *, char*, size_t);
+
 #endif
