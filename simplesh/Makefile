@@ -4,9 +4,9 @@ LDFLAGS = -L../lib -Wl,-rpath=../lib
 LDLIBS = -lhelpers
 
 RM = rm -f
-TARGET = filter
+TARGET = simplesh
 
-SRCS = filter.c 
+SRCS = simplesh.c 
 OBJS = $(SRCS:.c=.o) 
 
 all: $(TARGET)
