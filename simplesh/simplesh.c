@@ -19,18 +19,13 @@ int main() {
 		size_t p = 0, n = readres + idx;
 		int i;
 		for (i = 0; i < (int)n; i++) {
-			//fprintf(stderr, "%d ", i);
 			if ((buf[i] == pipechar) || buf[i] == delimiter) {
-				//fprintf(stderr, "%d %d\n", p, i);
 				if (p != i) {
-					//fprintf(stderr, "LOL");
 					if ((progs[amount] = execargs_new(buf + p, i - p)) == NULL) goto ERROR;
-					//fprintf(stderr, "LOL2");
 					amount++;
 				}
 				p = i + 1;
 				if (buf[i] == delimiter) {
-					fprintf(stderr, "%d\n", amount);
 					if (runpiped(progs, amount) < 0) goto ERROR;
 					amount = 0;
 					if (write_(STDIN_FILENO, str, 2) < 0) goto ERROR;

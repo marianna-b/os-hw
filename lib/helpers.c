@@ -104,7 +104,6 @@ execargs_t* execargs_new(char* str, size_t size) {
 	for (i = 0; i < size; i++){
 		if ((str[i] == ' ') && (i > l)) {
 			int len = i + 1 - l;
-			//fprintf(stderr, "%d\n", (int)len);
 			p->arg[amount] = calloc(len, sizeof(char));
 			if (p->arg[amount] == NULL) {
 				int j;
@@ -116,11 +115,11 @@ execargs_t* execargs_new(char* str, size_t size) {
 			}
 			memcpy(p->arg[amount], str + l, len - 1);
 			p->arg[amount][len] = 0;
-			l = i + 1;
 			amount++;
 		}
+		if (str[i] == ' ')
+			l = i + 1;
 	}
-	//fprintf(stderr, "%d\n", amount);
 	int len = size + 1 - l;
 	if (l != size) {
 		p->arg[amount] = calloc(len, sizeof(char));
@@ -148,7 +147,6 @@ void execargs_free(execargs_t* p) {
 }
 
 int exec(execargs_t* args) {
-	fprintf(stderr, "%s\n", args->arg[0]);
 	execvp(args->arg[0], args->arg);
 	_exit(EXIT_FAILURE);
 }
@@ -171,36 +169,57 @@ void handler_set() {
 
 int runpiped(execargs_t** programs, size_t n) {
 	handler_set();
+	fflush(stdout);
+
 	pid_t children[n];
+	int pipefd[n + 1][2];
+
+	pipefd[0][0] = STDIN_FILENO;
+	pipefd[n][1] = STDOUT_FILENO;
+
 	size_t i;
-	int pipefd[n][2];
-	int currstdin = STDIN_FILENO;
+	for (i = 1; i < n; i++) {
+		if (pipe(pipefd[i]) < 0) return -1;
+	}
 	for (i = 0; i < n; i++) {
-		fprintf(stderr, "%s %s %s\n", programs[i]->arg[0], programs[i]->arg[1], programs[i]->arg[2]);
-		int currstdout = STDOUT_FILENO;
-		if (i != n -1) {
-			if (pipe(pipefd[i]) < 0) {
-				return -1;
-			}
-			currstdout = pipefd[i][1];
-		}
+		int j;
+		for (j = 0; j < (int)programs[i]->size; j++)
+			fprintf(stderr, "%s ", programs[i]->arg[j]);
+		fprintf(stderr, "\n");
 		if ((children[i] = fork()) == 0) {
-			
-			fprintf(stderr, "stdin %d\n", currstdin);
-			fprintf(stderr, "stdout %d\n", currstdout);
-			if (i != 0 && dup2(currstdin, STDIN_FILENO) < 0) return -1;
-			if (i != n - 1 && dup2(currstdout, STDOUT_FILENO) < 0) return -1;
-			if (exec(programs[i]) != 0)  return -1;
+			if (i != 0 && close(pipefd[i][1]) < 0) {
+				_exit(EXIT_FAILURE);
+			}
+			if (dup2(pipefd[i][0], STDIN_FILENO) < 0) _exit(EXIT_FAILURE);
+			if (i != 0 && close(pipefd[i][0]) < 0) {
+				_exit(EXIT_FAILURE);
+			}
+
+			if (i != n - 1 && close(pipefd[i + 1][0]) < 0) {
+				_exit(EXIT_FAILURE);
+			}
+			if (dup2(pipefd[i + 1][1], STDOUT_FILENO) < 0) _exit(EXIT_FAILURE);
+			if (i != n - 1 && close(pipefd[i + 1][1]) < 0) {
+				_exit(EXIT_FAILURE);
+			}
+
+			if (exec(programs[i]) != 0) _exit(EXIT_FAILURE);
+
+			_exit(EXIT_FAILURE);
 		} else {
 			if (children[i] < 0) {
+				size_t j;
+				for (j = 0; j < i; j++) {
+					kill(children[j], SIGINT);
+				}
 				return -1;
 			}
-			currstdin = pipefd[i][0];
+			if (i != 0 && (close(pipefd[i][0]) || close(pipefd[i][1]) < 0))  {
+				return -1;
+			}
 		}
-		fprintf(stderr, "%d\n", (int)i);
 	}
 	int status;
 	waitpid(children[n - 1], &status, 0);
-	fprintf(stderr, "exit %d\n", WEXITSTATUS(status));
 	return 0;
 }
