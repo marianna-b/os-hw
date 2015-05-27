@@ -12,10 +12,10 @@ const char pipechar = '|';
 const char* str = "$";
 
 int main() {
-	signal(SIGINT, SIG_IGN);
 	char buf[BUF_SIZE];
 
 	execargs_t* progs[BUF_SIZE];
+	handler_set(1);
 	if (write_(STDIN_FILENO, str, 1) < 0) goto ERROR;
 	
 	int amount = 0, idx = 0, readres;

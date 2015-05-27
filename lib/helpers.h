@@ -16,5 +16,6 @@ void execargs_free(execargs_t*);
 
 int exec(execargs_t * args);
 int runpiped(execargs_t**, size_t);
+void handler_set(int);
 
 #endif

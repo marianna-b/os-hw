@@ -151,26 +151,34 @@ int exec(execargs_t* args) {
 	_exit(EXIT_FAILURE);
 }
 
-void handler(int sig) {
-	signal(SIGINT, SIG_IGN);
-	kill(-1 * getpid(), SIGINT);
+void handler_parent(int sig) {
+	if (sig == SIGINT)
+		kill(0, SIGUSR1);
 }
 
-void handler_set() {
+void handler_child(int sig) {
+	if (sig == SIGUSR1)
+		_exit(0);
+}
+
+void handler_set(int isparent) {
 	struct sigaction act;
-	memset(&act, 0, sizeof(act));
-	act.sa_handler = handler;
 	sigset_t set;
+	memset(&act, 0, sizeof(act));
+	if (isparent == 1)
+		act.sa_handler = handler_parent;
+	else 
+		act.sa_handler = handler_child;
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
+	sigaddset(&set, SIGUSR1);
 	act.sa_mask = set;
 	sigaction(SIGINT, &act, 0);
+	sigaction(SIGUSR1, &act, 0);
 }
 
 int runpiped(execargs_t** programs, size_t n) {
-	handler_set();
-	fflush(stdout);
-
+	handler_set(1);
 	pid_t children[n];
 	int pipefd[n + 1][2];
 
@@ -182,11 +190,9 @@ int runpiped(execargs_t** programs, size_t n) {
 		if (pipe(pipefd[i]) < 0) return -1;
 	}
 	for (i = 0; i < n; i++) {
-		int j;
-		for (j = 0; j < (int)programs[i]->size; j++)
-			fprintf(stderr, "%s ", programs[i]->arg[j]);
-		fprintf(stderr, "\n");
 		if ((children[i] = fork()) == 0) {
+			handler_set(0);
+
 			if (i != 0 && close(pipefd[i][1]) < 0) {
 				_exit(EXIT_FAILURE);
 			}
