@@ -192,11 +192,8 @@ int runpiped(execargs_t** programs, size_t n) {
 	pipefd[n][1] = STDOUT_FILENO;
 
 	size_t i;
-	for (i = 1; i < n; i++) {
-		if (pipe(pipefd[i]) < 0) return -1;
-	}
-
 	for (i = 0; i < n; i++) {
+		if (i != n - 1 && pipe(pipefd[i + 1]) < 0) return -1;
 		if ((children[i] = fork()) == 0) {
 			handler_set(0);
 
@@ -223,7 +220,10 @@ int runpiped(execargs_t** programs, size_t n) {
 				return -1;
 		}
 	}
-	int status;
-	waitpid(children[n - 1], &status, 0);
+	
+	for (i = 0; i < n; i++) {
+		int status;
+		waitpid(children[i], &status, 0);
+	}
 	return 0;
 }
