@@ -212,6 +212,15 @@ int runpiped(execargs_t** programs, size_t n) {
 			_exit(EXIT_FAILURE);
 		} else {
 			if (children[i] < 0) {
+				if (i != 0) {
+					close(pipefd[i][0]); 
+					close(pipefd[i][1]);
+				}
+				if (i != n - 1) {
+					close(pipefd[i + 1][0]);
+					close(pipefd[i + 1][1]);
+				}
+
 				size_t j;
 				for (j = 0; j < i; j++) 
 					kill(children[j], SIGUSR1);
