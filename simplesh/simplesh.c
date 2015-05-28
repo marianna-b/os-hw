@@ -16,6 +16,7 @@ int main() {
 
 	execargs_t* progs[BUF_SIZE];
 	handler_set(1);
+
 	if (write_(STDIN_FILENO, str, 1) < 0) goto ERROR;
 	
 	int amount = 0, idx = 0, readres;
@@ -28,6 +29,7 @@ int main() {
 		}
 		size_t p = 0, n = readres + idx;
 		int i;
+
 		for (i = 0; i < (int)n; i++) {
 			if ((buf[i] == pipechar) || buf[i] == delimiter) {
 				if (p != i) {
