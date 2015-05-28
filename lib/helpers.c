@@ -160,7 +160,7 @@ void handler_parent(int sig) {
 
 void handler_child(int sig) {
 	if (sig == SIGUSR1)
-		_exit(0);
+		kill(getpid(), SIGINT);
 }
 
 void handler_set(int isparent) {
@@ -174,12 +174,14 @@ void handler_set(int isparent) {
 		act.sa_handler = handler_child;
 
 	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
+	if (isparent == 1)
+		sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGUSR1);
 
 	act.sa_mask = set;
 
-	sigaction(SIGINT, &act, 0);
+	if (isparent == 1)
+		sigaction(SIGINT, &act, 0);
 	sigaction(SIGUSR1, &act, 0);
 }
 
