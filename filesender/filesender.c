@@ -14,13 +14,28 @@
 #include <fcntl.h>
 
 const size_t BUF_SIZE = 4096;
+int sfd, cfd;
+
+void handler(int sig) {
+	close(sfd);
+	close(cfd);
+	_exit(1);
+}
 
 int main(int argc, char** argv) {
 	if (argc != 3) goto ERROR;
 
+	struct sigaction act;
+	sigset_t set;
+	memset(&act, 0, sizeof(act));
+	act.sa_handler = handler;
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	act.sa_mask = set;
+	sigaction(SIGINT, &act, 0);
+
 	struct addrinfo hints;
 	struct addrinfo* res, *rp;
-	int sfd;
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_INET;
@@ -64,7 +79,6 @@ int main(int argc, char** argv) {
 	socklen_t peer_addr_size;
 	peer_addr_size = sizeof(struct sockaddr_un);
 
-	int cfd;
 	while ((cfd = accept(sfd, (struct sockaddr *) &peer_addr, &peer_addr_size)) >= 0) {
 		pid_t child;
 		if ((child = fork()) == 0) {
@@ -90,9 +104,15 @@ CHILD_ERROR:
 			close(sfd);
 			_exit(EXIT_FAILURE);
 		}
-		close(cfd);
-		if (child < 0) goto CHILD_ERROR;
-		
+		if (child < 0) {
+			close(cfd);
+			close(sfd);
+			goto ERROR;
+		}
+		if (close(cfd) < 0) {
+			close(sfd);
+			goto ERROR;
+		}
 	}
 	close(sfd);
 	return 0;
