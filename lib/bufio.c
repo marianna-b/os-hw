@@ -17,7 +17,7 @@ struct buf_t {
 typedef struct buf_t buf_t;
 
 buf_t *buf_new(size_t capacity) {
-	buf_t* p = malloc(sizeof(buf_t));
+	buf_t* p =(buf_t*) malloc(sizeof(buf_t));
 	if (p == NULL) {
 		return p;
 	}
