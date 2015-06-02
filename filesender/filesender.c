@@ -114,8 +114,8 @@ CHILD_ERROR:
 			goto ERROR;
 		}
 	}
+	perror("accept");
 	close(sfd);
-	return 0;
 ERROR:
 	return 1;
 }
