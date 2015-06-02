@@ -1,4 +1,4 @@
-SUBMODULES = lib cat revwords filter bufcat simplesh filesender
+SUBMODULES = lib cat revwords filter bufcat simplesh filesender bipiper
 
 all:
 	@for dir in $(SUBMODULES) ; do \
