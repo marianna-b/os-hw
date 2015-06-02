@@ -28,7 +28,10 @@ int main(int argc, char** argv) {
 	hints.ai_protocol=IPPROTO_TCP;
 	hints.ai_flags=AI_PASSIVE;
 
-	if (getaddrinfo("localhost", argv[1], &hints, &res) != 0) goto ERROR;
+	if (getaddrinfo("localhost", argv[1], &hints, &res) != 0) {
+		perror("Get addr info");
+		goto ERROR;
+	}
 
 	for (rp = res; rp != NULL; rp = rp->ai_next) {
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
@@ -39,10 +42,17 @@ int main(int argc, char** argv) {
 		if (bind(sfd, rp->ai_addr, rp->ai_addrlen) == 0)
 			break;
 
-		close(sfd);
+		if (close(sfd) < 0) {
+			perror("Close");
+			goto ERROR;
+		}
+
 	}
 
-	if (rp == NULL) goto ERROR;
+	if (rp == NULL) {
+		perror("Socket list");
+		goto ERROR;
+	}
 
 	if (listen(sfd, 100) < 0) {
 		perror("Listen");
@@ -62,7 +72,8 @@ int main(int argc, char** argv) {
 			if ((file = open(argv[2], O_RDONLY)) < 0) goto CHILD_ERROR;
 			
 			buf_t* buffer = buf_new(BUF_SIZE);
-			while (buf_fill(file, buffer, BUF_SIZE) >= 0) {
+			int res;
+			while ((res = buf_fill(file, buffer, BUF_SIZE)) > 0) {
 				if (buf_flush(cfd, buffer, (buf_size(buffer))) < 0) {
 					close(file);
 					goto CHILD_ERROR;
@@ -79,9 +90,11 @@ CHILD_ERROR:
 			close(sfd);
 			_exit(EXIT_FAILURE);
 		}
+		close(cfd);
 		if (child < 0) goto CHILD_ERROR;
 		
 	}
+	close(sfd);
 	return 0;
 ERROR:
 	return 1;
