@@ -41,11 +41,12 @@ int getfd(struct addrinfo* res) {
 			break;
 
 		if (close(sfd) < 0) {
+			freeaddrinfo(res);
 			perror("Close");
 			closenexit(1);
 		}
-
 	}
+	freeaddrinfo(res);
 	if (rp == NULL) {
 		perror("Socket list");
 		closenexit(1);
@@ -56,12 +57,21 @@ int getfd(struct addrinfo* res) {
 void forward(int f1, int f2) {
 
 	buf_t* buffer = buf_new(BUF_SIZE);
+	if (buffer == NULL)
+		closenexit(EXIT_FAILURE);
+	
 	int res;
 	while ((res = buf_fill(f1, buffer, 1)) > 0) {
 		if (buf_flush(f2, buffer, (buf_size(buffer))) < 0) {
 			perror("Buffer");
+			buf_free(buffer);
 			closenexit(EXIT_FAILURE);
 		}
+	}
+	buf_free(buffer);
+	if (res < 0) {
+		perror("Buffer");
+		closenexit(1);
 	}
 	closenexit(0);
 }
@@ -69,7 +79,9 @@ void forward(int f1, int f2) {
 
 
 int main(int argc, char** argv) {
-	if (argc != 3) goto ERROR;
+	if (argc != 3) {
+		return 1;
+	}
 
 	struct sigaction act;
 	sigset_t set;
@@ -91,24 +103,25 @@ int main(int argc, char** argv) {
 
 	if (getaddrinfo("localhost", argv[1], &hints, &res1) != 0) {
 		perror("Get addr info");
-		goto ERROR;
+		return 1;
 	}
+	sfd1 = getfd(res1);
 	if (getaddrinfo("localhost", argv[2], &hints, &res2) != 0) {
 		perror("Get addr info");
-		goto ERROR;
+		return 1;
 	}
-	
-	sfd1 = getfd(res1);
 	sfd2 = getfd(res2);
 
 	if (listen(sfd1, 100) < 0) {
 		perror("Listen");
-		goto ERROR;
+		close(sfd1);
+		return 1;
 	}
 
 	if (listen(sfd2, 100) < 0) {
 		perror("Listen");
-		goto ERROR;
+		close(sfd2);
+		return 1;
 	}
 
 	struct sockaddr_un peer_addr;
@@ -118,7 +131,7 @@ int main(int argc, char** argv) {
 	while ((cfd1 = accept(sfd1, (struct sockaddr *) &peer_addr, &peer_addr_size)) >= 0) {
 		if ((cfd2 = accept(sfd2, (struct sockaddr *) &peer_addr, &peer_addr_size)) < 0)
 			break;
-		
+
 		pid_t child1, child2;
 		if ((child1 = fork()) == 0) {
 			forward(cfd1, cfd2);

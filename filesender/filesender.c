@@ -53,16 +53,15 @@ int main(int argc, char** argv) {
 
 		if (sfd == -1)
 			continue;
-
 		if (bind(sfd, rp->ai_addr, rp->ai_addrlen) == 0)
 			break;
-
 		if (close(sfd) < 0) {
 			perror("Close");
+			freeaddrinfo(res);
 			goto ERROR;
 		}
-
 	}
+	freeaddrinfo(res);
 
 	if (rp == NULL) {
 		perror("Socket list");
@@ -86,17 +85,26 @@ int main(int argc, char** argv) {
 			if ((file = open(argv[2], O_RDONLY)) < 0) goto CHILD_ERROR;
 			
 			buf_t* buffer = buf_new(BUF_SIZE);
+			if (buffer == NULL) {
+				goto CHILD_ERROR;
+			}
 			int res;
 			while ((res = buf_fill(file, buffer, BUF_SIZE)) > 0) {
 				if (buf_flush(cfd, buffer, (buf_size(buffer))) < 0) {
 					close(file);
+					buf_free(buffer);
 					goto CHILD_ERROR;
 				}
 			}
+
+			buf_free(buffer);
 			close(file);
 			close(cfd);
 			close(sfd);
-			
+
+			if (res < 0) {
+				_exit(EXIT_FAILURE);
+			}
 			_exit(0);
 CHILD_ERROR:
 			perror("");
