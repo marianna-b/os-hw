@@ -59,8 +59,7 @@ void forward(int f1, int f2) {
 	int res;
 	while ((res = buf_fill(f1, buffer, 1)) > 0) {
 		if (buf_flush(f2, buffer, (buf_size(buffer))) < 0) {
-			fprintf(stderr, "%d\n", res);
-			perror("");
+			perror("Buffer");
 			closenexit(EXIT_FAILURE);
 		}
 	}
@@ -87,8 +86,8 @@ int main(int argc, char** argv) {
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol=IPPROTO_TCP;
-	hints.ai_flags=AI_PASSIVE;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = AI_PASSIVE;
 
 	if (getaddrinfo("localhost", argv[1], &hints, &res1) != 0) {
 		perror("Get addr info");
@@ -101,7 +100,6 @@ int main(int argc, char** argv) {
 	
 	sfd1 = getfd(res1);
 	sfd2 = getfd(res2);
-	
 
 	if (listen(sfd1, 100) < 0) {
 		perror("Listen");
