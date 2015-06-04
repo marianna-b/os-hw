@@ -244,6 +244,10 @@ int main(int argc, char** argv) {
 						perror("Close");
 				}
 			}
+			if (n == 256)
+				fds[0].fd *= -1;
+			if (n < 256 && fds[0].fd < 0 && fds[1].fd < 0)
+				fds[0].fd *= -1;
 		}
 	}
 	perror("Poll");
