@@ -4,14 +4,14 @@ LDFLAGS = -L../lib -Wl,-rpath=../lib
 LDLIBS = -lhelpers -lbufio
 
 RM = rm -f
-TARGET = forking
+TARGET = polling
 
-SRCS = forking.c 
+SRCS = polling.c
 OBJS = $(SRCS:.c=.o) 
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) 
  
 clean:
 	-$(RM) $(TARGET) $(OBJS)
