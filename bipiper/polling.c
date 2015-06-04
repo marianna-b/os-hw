@@ -109,10 +109,12 @@ void swap_with_last(int i) {
 	struct pollfd tmp = fds[i];
 	fds[i] = fds[n - 2];
 	fds[n - 2] = tmp;
+	close(fds[n - 2].fd);
 
 	tmp = fds[i + 1];
 	fds[i + 1] = fds[n - 1];
 	fds[n - 1] = tmp;
+	close(fds[n - 1].fd);
 
 	free_buffs(&p[(i - 2) / 2]);
 	p[(i - 2) / 2] = p[(n - 4) / 2];

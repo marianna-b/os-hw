@@ -4,14 +4,16 @@ LDFLAGS = -L../lib -Wl,-rpath=../lib
 LDLIBS = -lhelpers -lbufio
 
 RM = rm -f
-TARGET = polling
-
-SRCS = polling.c
-OBJS = $(SRCS:.c=.o) 
+TARGET = polling forking
+OBJS = polling.o forking.o
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS) 
+polling: polling.c 
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+forking: forking.c 
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
  
 clean:
-	-$(RM) $(TARGET) $(OBJS)
+	-$(RM)  $(TARGET) $(OBJS)
