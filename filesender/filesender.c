@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	hints.ai_protocol=IPPROTO_TCP;
 	hints.ai_flags=AI_PASSIVE;
 
-	if (getaddrinfo("localhost", argv[1], &hints, &res) != 0) {
+	if (getaddrinfo("0.0.0.0", argv[1], &hints, &res) != 0) {
 		perror("Get addr info");
 		goto ERROR;
 	}

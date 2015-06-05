@@ -61,9 +61,19 @@ void forward(int f1, int f2) {
 		closenexit(EXIT_FAILURE);
 	
 	int res;
-	while ((res = buf_fill(f1, buffer, 1)) > 0) {
-		if (buf_flush(f2, buffer, (buf_size(buffer))) < 0) {
-			perror("Buffer");
+	while (1) {
+		res = buf_fill(f1, buffer, 1);
+		if (res <= 0) {
+			shutdown(f1, SHUT_RD);
+		}
+		int res2;
+		if ((res2 = buf_flush(f2, buffer, (buf_size(buffer)))) <= 0) {
+			shutdown(f2, SHUT_WR);
+			buf_free(buffer);
+			closenexit(EXIT_FAILURE);
+		}
+		if (res <= 0) {
+			shutdown(f2, SHUT_WR);
 			buf_free(buffer);
 			closenexit(EXIT_FAILURE);
 		}
@@ -101,12 +111,12 @@ int main(int argc, char** argv) {
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
 
-	if (getaddrinfo("localhost", argv[1], &hints, &res1) != 0) {
+	if (getaddrinfo("0.0.0.0", argv[1], &hints, &res1) != 0) {
 		perror("Get addr info");
 		return 1;
 	}
 	sfd1 = getfd(res1);
-	if (getaddrinfo("localhost", argv[2], &hints, &res2) != 0) {
+	if (getaddrinfo("0.0.0.0", argv[2], &hints, &res2) != 0) {
 		perror("Get addr info");
 		return 1;
 	}

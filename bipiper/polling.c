@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
 
 	int sfd1, sfd2, cfd1, cfd2;
 
-	if (getaddrinfo("localhost", argv[1], &hints, &res1) != 0) {
+	if (getaddrinfo("0.0.0.0", argv[1], &hints, &res1) != 0) {
 		perror("Get addr info");
 		return 1;
 	}
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
-	if (getaddrinfo("localhost", argv[2], &hints, &res2) != 0) {
+	if (getaddrinfo("0.0.0.0", argv[2], &hints, &res2) != 0) {
 		perror("Get addr info");
 		return 1;
 	}
@@ -225,7 +225,8 @@ int main(int argc, char** argv) {
 				fds[0].fd *= -1;
 				fds[1].fd *= -1;
 				cfd1 = accept4(sfd1, (struct sockaddr *) &peer_addr, &peer_addr_size, SOCK_NONBLOCK);
-				if (cfd2 == -1) {
+				fprintf(stderr, "accept %d\n", cfd1);
+				if (cfd1 == -1) {
 					perror("Accept");
 					goto ERROR;
 				}
@@ -234,6 +235,7 @@ int main(int argc, char** argv) {
 				fds[1].fd *= -1;
 
 				cfd2 = accept4(sfd2, (struct sockaddr *) &peer_addr, &peer_addr_size, SOCK_NONBLOCK);
+				fprintf(stderr, "accept %d\n", cfd2);
 				if (cfd2 == -1) {
 					perror("Accept");
 					goto ERROR;
